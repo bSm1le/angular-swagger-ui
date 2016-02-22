@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.2.4
+ * Orange angular-swagger-ui - v0.2.7
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -9,8 +9,6 @@
 angular
 	.module('swaggerUi')
 	.service('swaggerClient', ['$q', '$http', 'swaggerModules', function($q, $http, swaggerModules) {
-
-		var baseUrl;
 
 		/**
 		 * format API explorer response before display
@@ -46,7 +44,8 @@ angular
 			var deferred = $q.defer(),
 				query = {},
 				headers = {},
-				path = operation.path;
+				path = operation.path,
+				body = undefined;
 
 			// build request parameters
 			for (var i = 0, params = operation.parameters || [], l = params.length; i < l; i++) {
@@ -69,40 +68,36 @@ angular
 						}
 						break;
 					case 'formData':
-						values.body = values.body || new FormData();
+						body = body || new FormData();
 						if (!!value) {
 							if (param.type === 'file') {
 								values.contentType = undefined; // make browser defining it by himself
 							}
-							values.body.append(param.name, value);
+							body.append(param.name, value);
 						}
 						break;
 					case 'body':
-						values.body = values.body || value;
+						body = body || value;
 						break;
 				}
 			}
 
 			// add headers
 			headers.Accept = values.responseType;
-			headers['Content-Type'] = values.body ? values.contentType : 'text/plain';
+			headers['Content-Type'] = body ? values.contentType : 'text/plain';
 
-			if (!baseUrl) {
-				// build base URL
-				baseUrl = [
+			// build request
+			var baseUrl = [
 					swagger.schemes[0],
 					'://',
 					swagger.host,
 					swagger.basePath || ''
-				].join('');
-			}
-
-			// build request
-			var options = {
+				].join(''),
+				options = {
 					method: operation.httpMethod,
 					url: baseUrl + path,
 					headers: headers,
-					data: values.body,
+					data: body,
 					params: query
 				},
 				callback = function(data, status, headers, config) {
