@@ -306,7 +306,7 @@ angular
 
 			// add headers
 			headers.Accept = values.responseType;
-			headers['Content-Type'] = values.body ? values.contentType : 'text/plain';
+			headers['Content-Type'] = values.body ? values.contentType : 'application/json';
 			headers.Authorization = 'token ' + customHeaders.Authorization;
 			headers['X-Customer-Id'] = customHeaders.customerId;
 
